@@ -1,0 +1,49 @@
+<!-- Conditional display of paginator buttons if more than 1 page exists -->
+{% if query_set.has_other_pages %}
+
+<div class="pagination">
+    <ul class="container">
+
+        <!-- Conditional styling of the Previous button -->
+        {% if query_set.has_previous %}
+        <li><a href="?page=1" class="btn page-link" data-page="1">&#10094;&#10094; First</a></li>
+        <li><a href="?page={{query_set.previous_page_number}}" class="btn page-link"
+                data-page="{{query_set.previous_page_number}}">&#10094; Prev</a></li>
+        {% else %}
+        <li><a class="btn btn--disabled">&#10094;&#10094; First</a></li>
+        <li><a class="btn btn--disabled">&#10094; Prev</a></li>
+        {% endif %}
+
+        <!-- Actual page buttons with page numbers -->
+        <!-- Using the paginator.page_range is not good when we have a lot of pages -->
+        <!-- In those cases its better to create our own custom range -->
+        <!--  for page in paginator.page_range (commented the jinja syntax like this because it doesnt support comments ) -->
+
+        {% for page in custom_range %}
+
+        {% if page == query_set.number %}
+        <li><a href="?page={{page}}" class="btn page-link btn--sub" data-page="{{page}}">{{page}}</a></li>
+        {% else %}
+        <li><a href="?page={{page}}" class="btn page-link" data-page="{{page}}">{{page}}</a></li>
+        {% endif %}
+
+        {% endfor %}
+
+        <!-- Conditional styling of the Next button -->
+
+        {% if query_set.has_next %}
+        <li><a href="?page={{query_set.next_page_number}}" class="btn page-link"
+                data-page="{{query_set.next_page_number}}">Next &#10095;</a>
+        </li>
+        <li><a href="?page={{paginator.num_pages}}" class="btn page-link" data-page="{{paginator.num_pages}}">Last
+                &#10095;&#10095;
+            </a></li>
+        {% else %}
+        <li><a class="btn btn--disabled">Next &#10095;</a></li>
+        <li><a class="btn btn--disabled">Last &#10095;&#10095; </a></li>
+        {% endif %}
+
+    </ul>
+</div>
+
+{% endif %}
