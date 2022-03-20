@@ -135,6 +135,8 @@ EMAIL_HOST_PASSWORD = "should_use_an_app_password_here"
 
 # for some reason, when I configured this with my own email and password, it was giving a TimeOut Error
 # mostly due to the security settings not allowing app passwords and less secure app permission at the same time
+# the following stackoverflow link might be useful for further debugging
+# https://stackoverflow.com/questions/66841759/im-trying-to-send-an-email-from-django-using-gmail-smtp
 
 
 # Static files (CSS, JavaScript, Images)
