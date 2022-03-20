@@ -1,9 +1,9 @@
-from turtle import right
-from django.http import HttpResponse
+from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .models import Project
-from .forms import ProjectForm
+from .forms import ProjectForm, ReviewForm
 from .utils import paginateProjects, searchProjects
 
 
@@ -24,13 +24,42 @@ def projects(request):
 
 
 def project(request, pk):
-    # projects = Project.objects.all()
     projectObj = Project.objects.get(id=pk)
     tags = projectObj.tags.all()  # many to many relationship query
+    reviews = projectObj.review_set.all()
+    form = ReviewForm()
+
+    if request.method == "POST":
+        form = ReviewForm(request.POST)
+        try:
+            if form.is_valid():
+                review = form.save(commit = False)
+                # request.user.profile returns the currently logged in user
+                review.owner = request.user.profile 
+                review.project = projectObj
+                review.save()
+
+                # updating the vote counts and vote ratios
+                projectObj.updateVoteCount
+                # since we used the @property decorator on the updateVoteCount, 
+                # we dont need to use the () as if it was a function call
+
+                # notify the user that the review is submitted successfully
+                messages.success(request, "Review submitted successfully")
+                
+                # to redirect to a url that takes in a dynamic value like the project id, this is the way to implement that
+                # the reason for this redirection is to clear the form fields after submitting the review
+                return redirect('project', pk=projectObj.id)
+
+        except IntegrityError:
+            messages.info(request, "You have already submitted a review or vote for this project")
+            return redirect('project', pk=projectObj.id)
 
     context = {
         'project': projectObj,
-        'tags': tags
+        'tags': tags,
+        'reviews': reviews,
+        'form': form,
     }
     return render(request, 'projects/single-project.html', context)
 
@@ -43,7 +72,6 @@ def createProject(request):
 
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
-        print(form)
         if form.is_valid():
             # getting an instance of the form data but not yet saving it to db because we want to add the project owner
             project = form.save(commit=False)
