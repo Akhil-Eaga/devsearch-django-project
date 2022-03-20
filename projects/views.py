@@ -26,7 +26,7 @@ def projects(request):
 def project(request, pk):
     projectObj = Project.objects.get(id=pk)
     tags = projectObj.tags.all()  # many to many relationship query
-    reviews = projectObj.review_set.all()
+    reviews = projectObj.review_set.all() # many to one relationship query
     form = ReviewForm()
 
     if request.method == "POST":

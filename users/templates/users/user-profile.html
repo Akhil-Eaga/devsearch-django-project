@@ -46,7 +46,12 @@
                             </li>
                             {% endif%}
                         </ul>
-                        <a href="#" class="btn btn--sub btn--lg">Send Message </a>
+
+                        <!-- DONT display send message button only for the currently logged in users' own profile -->
+                        {% if request.user.profile.id != profile.id %}
+                        <a href="{% url 'create-message' profile.id %}" class=" btn btn--sub btn--lg">Send
+                            Message </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

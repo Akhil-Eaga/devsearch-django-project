@@ -37,7 +37,7 @@ class Project(models.Model):
         queryset = self.review_set.all().values_list('owner__id', flat=True)
         # flat = True does not return a list of tuples, rather a plain list
         # https://stackoverflow.com/questions/37205793/django-values-list-vs-values
-        # check the link above to get more clarity on value_list(p) vs values()
+        # check the link above to get more clarity on values_list(p) vs values()
         return queryset
 
     # the @property decorator allows the function to be called as a class property than a function call

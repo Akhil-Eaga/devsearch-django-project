@@ -1,3 +1,4 @@
+from email import message
 from re import search
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
@@ -6,8 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 
 from .utils import paginateProfiles, searchProfiles
-from .models import Profile
-from .forms import CustomUserCreationForm, ProfileForm, SkillForm
+from .models import Profile, Message
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm, MessageForm
 
 # Create your views here.
 
@@ -205,3 +206,78 @@ def deleteSkill(request, pk):
 
     context = {'object': skill}
     return render(request, 'delete_template.html', context)
+
+
+@login_required(login_url='login')
+def inbox(request):
+    # currently logged in user
+    profile = request.user.profile
+
+    # make sure to name this variable anything other than messages, because our flash messages import uses the name "messages"
+    messageRequests = profile.messages.all()
+    # the reason why we used messages.all() instead of message_set.all() because we gave a related_name in the Message model
+    # here we can see the importance of naming the model attribute, 
+    # if we had not given a related_name, profile.message_set.all() does not know whether to use the sender or recipient
+    
+    unreadCount = messageRequests.filter(is_read=False).count()
+    
+    context = {
+        'messageRequests': messageRequests,
+        'unreadCount': unreadCount
+    }
+    
+    return render(request, 'users/inbox.html', context)
+
+@login_required(login_url='login')
+def viewMessage(request, pk):
+    profile = request.user.profile
+    # make sure to not name the variable as "messages" because that name is used by our flash messages import
+    message = profile.messages.get(id=pk)
+
+    if message.is_read == False:
+        # now make the message as read and save the message object
+        message.is_read = True
+        message.save()
+
+        # to extend the read/unread functionality, we can add one more field to the model 
+        # such as date_read to store when the message was first read
+
+    context = {
+        'message': message
+    }
+    return render(request, 'users/message.html', context)
+
+
+# we want any user (logged in or not) to be able to send a message to another user
+# so we are not adding the login_required decorator to this view
+def createMessage(request, pk):
+    # in this case the pk is used to get the recipient ID
+    # recipient is used in the template to send the user back to the recipient profile when they hit the back button
+    recipient = Profile.objects.get(id=pk)
+    form = MessageForm()
+
+    sender = request.user.profile if request.user.is_authenticated else None 
+
+    if request.method == "POST":
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.recipient = recipient
+            message.sender = sender
+
+            # if sender profile exists, then set the message models' name and email fields from the sender profile
+            if sender:
+                message.name = sender.name
+                message.email = sender.email
+            
+            message.save()
+
+            messages.success(request, "Message sent successfully")
+
+            return redirect('user-profile', pk=recipient.id)
+            
+    context = {
+        'recipient': recipient,
+        'form': form
+    }
+    return render(request, 'users/message_form.html', context)
