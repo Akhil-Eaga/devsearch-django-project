@@ -4,6 +4,9 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import Profile
 
+from django.conf import settings
+from django.core.mail import send_mail
+
 # -------------- THIS IS ONE WAY OF CONNECTING RECEIVERS TO THE SIGNALS ---------------------
 
 
@@ -19,6 +22,19 @@ def createProfile(sender, instance, created, **kwargs):
             email=user.email,
             name=user.first_name
         )
+
+
+        # THIS IS SUPPOSED TO WORK BUT NOT WORKING - NOT SURE WHY - MOSTLY BECAUSE OF THE GOOGLE SMTP SETTINGS
+        # sending a welcome email everytime a user account is created
+        # subject = "Welcome to DevSearch"
+        # message = "We are glad you are here. Thank you !!!"
+        # send_mail(
+        #     subject,
+        #     message,
+        #     settings.EMAIL_HOST_USER,
+        #     [profile.email],
+        #     fail_silently=False,
+        # )
 
 
 @receiver(post_save, sender=Profile)

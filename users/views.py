@@ -83,8 +83,8 @@ def registerUser(request):
             login(request, user)
             return redirect('edit-account')
 
-        else:
-            messages.error(request, "An error has occured during registration")
+        # else:
+        #     messages.error(request, "An error has occured during registration")
 
     context = {'page': page, 'form': form}
     return render(request, 'users/login_register.html', context)

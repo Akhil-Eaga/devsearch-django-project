@@ -125,6 +125,18 @@ USE_L10N = True
 USE_TZ = True
 
 
+# Configuration to send emails from the app to the user
+EAMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587 # this port is for using TLS
+EMAIL_HOST_USER = "random.email@gmail.com"
+EMAIL_HOST_PASSWORD = "should_use_an_app_password_here"
+
+# for some reason, when I configured this with my own email and password, it was giving a TimeOut Error
+# mostly due to the security settings not allowing app passwords and less secure app permission at the same time
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
