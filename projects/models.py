@@ -31,6 +31,14 @@ class Project(models.Model):
         # here the ordering is based on highest vote ratio first and if there is a tie, the highest votes,
         # and if there is a tie even after that, we use alphabetical ordering of the title (note the lack of minus in the title)
 
+    @property
+    def reviewers(self):
+        # getting a list of reviewers
+        queryset = self.review_set.all().values_list('owner__id', flat=True)
+        # flat = True does not return a list of tuples, rather a plain list
+        # https://stackoverflow.com/questions/37205793/django-values-list-vs-values
+        # check the link above to get more clarity on value_list(p) vs values()
+        return queryset
 
     # the @property decorator allows the function to be called as a class property than a function call
     # so to get execute the function, we will say project.updateVoteCount instead of project.updateVoteCount() with the parentheses

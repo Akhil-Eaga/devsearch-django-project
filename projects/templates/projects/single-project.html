@@ -46,6 +46,13 @@
                         Vote{{project.vote_count | pluralize:"s"}})
                     </h5>
 
+                    {% if request.user.profile.id in project.reviewers %}
+                    <p>You have already reviewed the project</p>
+
+                    {% elif request.user.profile == project.owner %}
+                    <p>You cannot review your own work</p>
+
+                    {% elif request.user.is_authenticated %}
                     <form class="form" action="{% url 'project' project.id %}" method="POST">
                         {% csrf_token %}
 
@@ -60,6 +67,9 @@
 
                         <input class="btn btn--sub btn--lg" type="submit" value="Add Review" />
                     </form>
+                    {% else %}
+                    <a href="{% url 'login' %}?next={{request.path}}">Login to leave a review</a>
+                    {% endif %}
 
                     <!-- Container for comments -->
                     <div class="commentList">

@@ -19,8 +19,10 @@ def loginUser(request):
         return redirect('profiles')
 
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+        # we can use the bracket notation to access the form field values
+        username = request.POST['username'].lower()
+        # or we can alternatively use the .get method to access the form field values 
+        password = request.POST.get('password')
 
         try:
             # checking if the username exists in the db or not
@@ -35,7 +37,12 @@ def loginUser(request):
         if user is not None:
             # logging in the user
             login(request, user)
-            return redirect("profiles")
+            # to redirect the users to the page they were previously on, 
+            # we will check for the "next" query parameter in the request.GET else redirect to "account"
+
+            # NOTE: Although we are inside the request.POST if block, we can still get access to the request.GET
+            # because we made the action = "" (basically empty action) in the jinja template form 
+            return redirect(request.GET['next'] if 'next' in request.GET else 'account')
         else:
             # at this point, we have validated the user exists but the password did not actually match
             messages.error(request, "Username or password is incorrect")
