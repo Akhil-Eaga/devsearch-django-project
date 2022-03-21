@@ -126,12 +126,37 @@ USE_TZ = True
 
 
 # Configuration to send emails from the app to the user
-EAMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587 # this port is for using TLS
-EMAIL_HOST_USER = "random.email@gmail.com"
-EMAIL_HOST_PASSWORD = "should_use_an_app_password_here"
+# EAMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587 # this port is for using TLS
+# EMAIL_HOST_USER = "random.email@gmail.com"
+# EMAIL_HOST_PASSWORD = "should_use_an_app_password_here"
+
+
+# TRYING OUT THE AMAZON AWS SES (SIMPLE EMAIL SERIVICE) SMTP TO GET THE EMAILS WORKING
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_ACCESS_KEY_ID = 'AKIASJERNDLOSCXYAQHZ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+# used by the send_mail function in signals.py to use as the from address for sending emails
+EMAIL_HOST_USER = 'gojohnygo2013@gmail.com'
+
+# this is added to handle the case where django itself sends email from the email address webmaster@localhost
+# but since we are using AWS 
+DEFAULT_FROM_EMAIL = 'gojohnygo2013@gmail.com'
+
+
+# SOME SUPPORT LINKS
+# https://stackoverflow.com/questions/37528301/email-address-is-not-verified-aws-ses
+
+
+# NOTES FOR USING AWS SES SERVICE TO SEND EMAILS
+# BY DEFAULT SES WORKS FROM A SANDBOX AND WHILE THE SERVICE IS IN SANDBOX, 
+# BOTH THE FROM EMAIL AND TO EMAIL SHOULD BE VERIFIED IN THE AWS CONSOLE
+# BUT IF YOU MOVE TO PRODUCTION (COMING OUT OF SANDBOX), TO ADDRESSES NEED NOT BE VERIFIED
+
+
 
 # for some reason, when I configured this with my own email and password, it was giving a TimeOut Error
 # mostly due to the security settings not allowing app passwords and less secure app permission at the same time
@@ -151,8 +176,8 @@ STATICFILES_DIRS = [
 ]
 # os.path.join(BASE_DIR, 'static')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')
 
 
 # Default primary key field type

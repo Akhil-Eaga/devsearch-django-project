@@ -26,15 +26,15 @@ def createProfile(sender, instance, created, **kwargs):
 
         # THIS IS SUPPOSED TO WORK BUT NOT WORKING - NOT SURE WHY - MOSTLY BECAUSE OF THE GOOGLE SMTP SETTINGS
         # sending a welcome email everytime a user account is created
-        # subject = "Welcome to DevSearch"
-        # message = "We are glad you are here. Thank you !!!"
-        # send_mail(
-        #     subject,
-        #     message,
-        #     settings.EMAIL_HOST_USER,
-        #     [profile.email],
-        #     fail_silently=False,
-        # )
+        subject = "Welcome to DevSearch"
+        message = "We are glad you are here. Thank you !!!"
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [profile.email],
+            fail_silently=False,
+        )
 
 
 @receiver(post_save, sender=Profile)
