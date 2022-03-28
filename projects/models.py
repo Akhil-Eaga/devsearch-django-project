@@ -1,4 +1,3 @@
-from tkinter import CASCADE
 from django.db import models
 import uuid
 from users.models import Profile
