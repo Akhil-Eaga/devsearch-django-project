@@ -5,7 +5,7 @@ from users.models import Profile
 # Create your models here.
 class Project(models.Model):
     # using foreignKey creates a many to one relationship - one profile can have many projects
-    owner = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.SET_NULL) 
+    owner = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.CASCADE) 
     # SET_NULL will not delete the projects when the profile is deleted
     title = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
@@ -29,6 +29,14 @@ class Project(models.Model):
         ordering = ["-vote_ratio", "-vote_count", 'title']
         # here the ordering is based on highest vote ratio first and if there is a tie, the highest votes,
         # and if there is a tie even after that, we use alphabetical ordering of the title (note the lack of minus in the title)
+
+    @property
+    def imageURL(self):
+        try:
+            url = self.featured_image.url
+        except:
+            url = ""
+        return url
 
     @property
     def reviewers(self):

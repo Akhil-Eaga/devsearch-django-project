@@ -5,7 +5,7 @@ from .models import Project, Review
 class ProjectForm(ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'description', 'featured_image', 'demo_link', 'source_link', 'tags']
+        fields = ['title', 'description', 'featured_image', 'demo_link', 'source_link']
         # fields = '__all__' # this basically allows to create form fields for all model fields
         widgets = {
             'tags': forms.CheckboxSelectMultiple(),

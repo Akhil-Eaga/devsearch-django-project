@@ -24,17 +24,17 @@ def createProfile(sender, instance, created, **kwargs):
         )
 
 
-        # THIS IS SUPPOSED TO WORK BUT NOT WORKING - NOT SURE WHY - MOSTLY BECAUSE OF THE GOOGLE SMTP SETTINGS
-        # sending a welcome email everytime a user account is created
-        subject = "Welcome to DevSearch"
-        message = "We are glad you are here. Thank you !!!"
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,
-            [profile.email],
-            fail_silently=False,
-        )
+        # SENDING A WELCOME EMAIL UPON NEW PROFILE CREATION
+        
+        # subject = "Welcome to DevSearch"
+        # message = "We are glad you are here. Thank you !!!"
+        # send_mail(
+        #     subject,
+        #     message,
+        #     settings.EMAIL_HOST_USER,
+        #     [profile.email],
+        #     fail_silently=False,
+        # )
 
 
 @receiver(post_save, sender=Profile)
@@ -55,8 +55,14 @@ def updateUser(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Profile)
 def deleteUser(sender, instance, **kwargs):
     # since the instance here is of type profile, to get the user, we can do instance.user
-    user = instance.user
-    user.delete()
+    try:
+        user = instance.user
+        user.delete()
+    except:
+        pass
+
+    # explanation: since the profile data model alreay uses cascade delete when a user is deleted,
+    # this signal method is entering a cyclic dependency. To avoid this error we use the try-except
 
 
 # -------------- THIS IS ANOTHER WAY OF CONNECTING RECEIVERS TO THE SIGNALS ---------------------

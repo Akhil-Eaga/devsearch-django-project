@@ -1,8 +1,9 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 from .serializers import ProjectSerializer
-from projects.models import Project
+from projects.models import Project, Review
 
 @api_view(['GET'])
 def getRoutes(request):
@@ -24,7 +25,11 @@ def getRoutes(request):
 
 
 @api_view(['GET'])
+# @permission_classes([IsAuthenticated]) # this is analogous to the @login_required decorator for our normal jinja views
 def getProjects(request):
+    # this "request.user" does not look for user based on session based login, 
+    # but the @api_view decorator ensures that the request.user is actually looking for JWT based authenticated user
+    # print("USER:", request.user)
     projects = Project.objects.all()
     # attempting to send the above projects list as a response will result in TypeError as the Project instance is not JSON serializable
     serializer = ProjectSerializer(projects, many=True) # many is set to True when we are serializer a list of Project instances
@@ -37,4 +42,29 @@ def getProject(request, pk):
     project = Project.objects.get(id=pk)
     serializer = ProjectSerializer(project, many=False)
 
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def projectVote(request, pk):
+    project = Project.objects.get(id=pk)
+    # note that user comes from the token in this case not the Django's default session based login
+    user = request.user.profile
+
+    # request.data is not generally available on the request object, but because of the api_view decorator it is available
+    data = request.data
+
+    # get_or_create will check if a review by the current user on the current project already exists and returns that object
+    # if there is not such match, it creates a new review for the user on the given project and makes the "created" boolean a true else false
+    review, created = Review.objects.get_or_create(
+        owner=user,
+        project=project
+    )
+    # updating the vote value using the data object received from the 
+    review.value = data['value']
+    review.save()
+    # calling the update vote count to update the vote count and the vote ratio
+    project.updateVoteCount
+
+    serializer = ProjectSerializer(project, many=False)
     return Response(serializer.data)

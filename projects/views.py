@@ -2,7 +2,7 @@ from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Project
+from .models import Project, Tag
 from .forms import ProjectForm, ReviewForm
 from .utils import paginateProjects, searchProjects
 
@@ -71,6 +71,7 @@ def createProject(request):
     form = ProjectForm()
 
     if request.method == 'POST':
+        newtags = request.POST.get('newtags').replace(',', ' ').split()
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             # getting an instance of the form data but not yet saving it to db because we want to add the project owner
@@ -78,6 +79,10 @@ def createProject(request):
             # use the current logged in user as the project owner
             project.owner = profile
             project.save()
+
+            for tag in newtags:
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)
             # the if condition is checking if the submitted form is valid or not
             # the form.save() actually saves the form data into the database
             # after saving, redirect the user to the projects page by calling that URL's alias or name
@@ -95,10 +100,15 @@ def updateProject(request, pk):
     form = ProjectForm(instance=project)
 
     if request.method == 'POST':
+        newtags = request.POST.get('newtags').replace(',', ' ').split()
         # by passing in the instance, we are telling Django which instance to update instead of adding a new record
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
-            form.save()
+            project = form.save()
+            for tag in newtags:
+                tag, created = Tag.objects.get_or_create(name=tag)
+                project.tags.add(tag)
+
             return redirect('account')
 
     context = {'form': form}
